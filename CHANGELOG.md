@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented here.
 
+## 0.3.0 - Store operations
+
+### Added
+- Store-level operating dashboard
+- Daily revenue, order, ad spend, COGS, fee, refund and other-cost entries
+- Revenue, profit, margin, ROAS, CPA and AOV reporting
+- 7, 14 and 30 day store views
+- Daily performance trend visualization
+- Editable operating-day history
+- Multi-store support with separate store currencies
+- Scenario comparison table
+- Calculator CSV export
+- UTM builder
+- GitHub Actions build validation
+- Integration architecture documentation for Shopify, Google Ads and Meta Ads
+
+### Security
+- Added relationship-aware Row Level Security for stores and daily metrics
+- Added supporting foreign-key indexes
+- Kept cross-currency store totals separate until an exchange-rate source exists
+
 ## 0.2.0 - Operator workspace
 
 ### Added
