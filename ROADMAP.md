@@ -14,10 +14,12 @@
 - [x] Persistent product saving
 - [x] Product status workflow
 - [x] Scenario saving and loading
-- [ ] Product comparison table
-- [ ] UTM builder
+- [x] Scenario comparison table
+- [x] UTM builder
+- [x] CSV export for calculator results
+- [x] Store-level daily operating dashboard
+- [x] Revenue, profit, ROAS, CPA and AOV KPIs
 - [ ] Ad metric calculator
-- [ ] CSV export
 
 ## v0.3 — Data layer
 
@@ -25,6 +27,8 @@
 - [x] Email/password authentication
 - [x] Saved workspaces
 - [x] Workspace KPI dashboard
+- [x] Store model and daily operating metrics
+- [x] Row Level Security for user-owned operating data
 - [ ] Team collaboration
 
 ## v0.4 — Integrations
