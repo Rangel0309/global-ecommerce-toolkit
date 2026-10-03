@@ -69,7 +69,7 @@ export default function FxConverter() {
   }
 
   return (
-    <section className="border-t border-white/10 py-10">
+    <section id="fx" className="scroll-mt-20 border-t border-white/10 py-10">
       <div className="mb-6">
         <p className="text-sm font-medium text-teal-300">Currency utility</p>
         <h2 className="mt-2 text-2xl font-semibold">FX reference converter</h2>
