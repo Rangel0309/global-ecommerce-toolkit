@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { calculateProfit, scoreProduct } from "@/lib/calculators";
 import { supabase } from "@/lib/supabase/client";
+import OperationsDashboard from "@/components/operations-dashboard";
 
 type Currency = "USD" | "EUR" | "GBP";
 type ProductStatus = "idea" | "testing" | "winner" | "paused" | "failed";
@@ -689,6 +690,13 @@ export default function Home() {
             />
           </div>
         </section>
+      )}
+
+      {session && workspace && (
+        <OperationsDashboard
+          userId={session.user.id}
+          workspaceId={workspace.id}
+        />
       )}
 
       <section className="py-10">
