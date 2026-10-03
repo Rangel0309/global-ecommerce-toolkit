@@ -1,6 +1,10 @@
 # Global Ecommerce Toolkit
 
-Open-source tools for global ecommerce operators: profitability, ROAS, product validation, market research and international expansion.
+Open-source tools for global ecommerce operators: profitability, ROAS, product validation, store operations, market research and international expansion.
+
+## Live app
+
+https://global-ecommerce-toolkit.vercel.app
 
 ## Why this project exists
 
@@ -17,12 +21,14 @@ Global ecommerce decisions often live across spreadsheets, ad platforms, currenc
 - Product status tracking
 - Portfolio KPI dashboard
 - Saved pricing and CPA scenarios
+- Scenario comparison
+- Store-level daily operating dashboard
+- Revenue, profit, margin, ROAS, CPA and AOV reporting
+- Daily operating history
+- UTM builder
+- Calculator CSV export
 - Market comparison for the United States, United Kingdom and Germany
-- Multi-currency display for USD, EUR and GBP
-
-## Live app
-
-The current production build is deployed on Vercel.
+- Multi-currency store support for USD, EUR and GBP
 
 ## Tech stack
 
@@ -31,6 +37,7 @@ The current production build is deployed on Vercel.
 - Tailwind CSS
 - Supabase Auth + Postgres
 - Vercel
+- GitHub Actions
 
 ## Getting started
 
@@ -43,9 +50,24 @@ npm run dev
 
 Copy `.env.example` to `.env.local` and provide your Supabase project values before using authentication or persistence.
 
+## Data model
+
+The current persistence layer includes:
+
+- profiles
+- workspaces
+- stores
+- products
+- product scenarios
+- daily store metrics
+
+Financial reporting remains separated by store currency. USD, EUR and GBP are not added together until an exchange-rate provider is implemented.
+
 ## Security model
 
-User-owned tables use Supabase Row Level Security. Products, workspaces and scenarios are scoped to the authenticated user. Do not expose service-role keys in client-side environments.
+User-owned tables use Supabase Row Level Security. Products, workspaces, stores, scenarios and daily metrics are scoped to the authenticated user. Do not expose service-role keys or third-party OAuth secrets in client-side environments.
+
+See [docs/INTEGRATIONS.md](./docs/INTEGRATIONS.md) for the planned Shopify, Google Ads and Meta Ads integration architecture.
 
 ## Project principles
 
