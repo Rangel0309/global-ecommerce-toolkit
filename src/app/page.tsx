@@ -11,7 +11,7 @@ import AdMetricsCalculator from "@/components/ad-metrics-calculator";
 import ProductComparisonTable from "@/components/product-comparison-table";
 import FxConverter from "@/components/fx-converter";
 
-type Currency = "USD" | "EUR" | "GBP";
+type Currency = "USD" | "EUR" | "GBP" | "BRL";
 type ProductStatus = "idea" | "testing" | "winner" | "paused" | "failed";
 
 type Workspace = {
@@ -52,6 +52,7 @@ const symbols: Record<Currency, string> = {
   USD: "$",
   EUR: "€",
   GBP: "£",
+  BRL: "R$",
 };
 
 const markets = [
@@ -631,6 +632,7 @@ export default function Home() {
               <option>USD</option>
               <option>EUR</option>
               <option>GBP</option>
+              <option>BRL</option>
             </select>
           </label>
 
