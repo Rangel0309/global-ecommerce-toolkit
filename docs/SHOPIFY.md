@@ -46,6 +46,7 @@ SHOPIFY_CLIENT_ID=
 SHOPIFY_CLIENT_SECRET=
 SHOPIFY_TOKEN_ENCRYPTION_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
+CRON_SECRET=
 ```
 
 The existing public Supabase variables must remain configured:
@@ -101,9 +102,14 @@ The integration targets Shopify GraphQL Admin API `2026-10`.
 
 The integration imports the most recent 60 days because Shopify makes the last 60 days of orders available through the normal `read_orders` scope. Importing older orders requires the additional `read_all_orders` permission and Shopify approval.
 
+## Background synchronization
+
+A Vercel Cron job is already configured in `vercel.json` to run once per day at 10:00 UTC. Vercel sends the request to `/api/shopify/cron`, which requires `CRON_SECRET`.
+
+The cron processes connected stores sequentially and reuses the same sync engine as the manual **Sync Shopify now** button.
+
 ## Future work
 
-- scheduled/background synchronization
 - Shopify webhooks for order/refund changes
 - product catalog import
 - per-product sales attribution
