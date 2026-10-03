@@ -4,7 +4,27 @@ import {
   verifySupabaseUser,
 } from "@/lib/shopify/server";
 
+function isConfigured() {
+  return [
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "APP_URL",
+    "SHOPIFY_CLIENT_ID",
+    "SHOPIFY_CLIENT_SECRET",
+    "SHOPIFY_TOKEN_ENCRYPTION_KEY",
+  ].every((name) => Boolean(process.env[name]));
+}
+
 export async function GET(request: NextRequest) {
+  if (!isConfigured()) {
+    return NextResponse.json({
+      configured: false,
+      connected: false,
+      missingServerConfiguration: true,
+    });
+  }
+
   try {
     const user = await verifySupabaseUser(request.headers.get("authorization"));
     const storeId = request.nextUrl.searchParams.get("storeId");
@@ -27,10 +47,11 @@ export async function GET(request: NextRequest) {
     if (error) throw new Error(error.message);
 
     if (!data) {
-      return NextResponse.json({ connected: false });
+      return NextResponse.json({ configured: true, connected: false });
     }
 
     return NextResponse.json({
+      configured: true,
       connected: data.status === "connected",
       shopDomain: data.shop_domain,
       status: data.status,
@@ -42,6 +63,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     return NextResponse.json(
       {
+        configured: true,
         error:
           error instanceof Error
             ? error.message
