@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
+import ShopifyConnector from "@/components/shopify-connector";
 
 type Currency = "USD" | "EUR" | "GBP";
 
@@ -555,7 +556,12 @@ export default function OperationsDashboard({ userId, workspaceId }: Props) {
 
       {selectedStore ? (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ShopifyConnector
+            workspaceId={workspaceId}
+            storeId={selectedStore.id}
+          />
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <MetricCard
               label="Revenue"
               value={money(summary.revenue, currency)}
