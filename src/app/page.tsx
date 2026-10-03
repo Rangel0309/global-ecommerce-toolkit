@@ -8,6 +8,7 @@ import OperationsDashboard from "@/components/operations-dashboard";
 import ScenarioComparison from "@/components/scenario-comparison";
 import UtmBuilder from "@/components/utm-builder";
 import AdMetricsCalculator from "@/components/ad-metrics-calculator";
+import ProductComparisonTable from "@/components/product-comparison-table";
 
 type Currency = "USD" | "EUR" | "GBP";
 type ProductStatus = "idea" | "testing" | "winner" | "paused" | "failed";
@@ -997,6 +998,8 @@ export default function Home() {
               })}
             </div>
           )}
+
+          <ProductComparisonTable products={savedProducts} currency={currency} />
         </section>
       )}
 
