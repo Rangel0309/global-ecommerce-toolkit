@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 
 type Status = {
+  configured?: boolean;
   connected: boolean;
   shopDomain?: string;
   status?: string;
@@ -145,7 +146,11 @@ export default function ShopifyConnector({
         <div>
           <p className="text-sm font-medium text-emerald-300">Shopify</p>
           <h3 className="mt-1 text-lg font-semibold">
-            {status.connected ? "Store connected" : "Connect store data"}
+            {status.connected
+            ? "Store connected"
+            : status.configured === false
+            ? "Shopify server setup pending"
+            : "Connect store data"}
           </h3>
           <p className="mt-2 max-w-2xl text-sm text-slate-500">
             Import the last 60 days of orders, revenue and refunds into this
@@ -154,7 +159,12 @@ export default function ShopifyConnector({
           </p>
         </div>
 
-        {status.connected ? (
+        {status.configured === false ? (
+          <div className="max-w-sm rounded-xl border border-amber-400/20 bg-amber-400/[0.06] px-4 py-3 text-xs text-amber-200">
+            Add the Shopify and server-only Supabase environment variables in
+            Vercel before connecting a store.
+          </div>
+        ) : status.connected ? (
           <button
             onClick={sync}
             disabled={loading}
