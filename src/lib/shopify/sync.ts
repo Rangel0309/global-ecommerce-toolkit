@@ -245,7 +245,7 @@ export async function syncShopifyConnection(connectionId: string) {
       auth.accessToken
     );
 
-    const supportedCurrencies = new Set(["USD", "EUR", "GBP"]);
+    const supportedCurrencies = new Set(["USD", "EUR", "GBP", "BRL"]);
     if (currencyCode && !supportedCurrencies.has(currencyCode)) {
       throw new Error(
         `Shop currency ${currencyCode} is not supported by this toolkit yet.`
