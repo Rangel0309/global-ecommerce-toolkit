@@ -463,7 +463,7 @@ export default function OperationsDashboard({ userId, workspaceId }: Props) {
   }
 
   return (
-    <section className="border-b border-white/10 py-10">
+    <section id="operations" className="scroll-mt-20 border-b border-white/10 py-10">
       <div className="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-sm font-medium text-sky-300">Operations</p>
