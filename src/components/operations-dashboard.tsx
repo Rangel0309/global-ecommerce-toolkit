@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import ShopifyConnector from "@/components/shopify-connector";
 
-type Currency = "USD" | "EUR" | "GBP";
+type Currency = "USD" | "EUR" | "GBP" | "BRL";
 
 type Store = {
   id: string;
@@ -37,6 +37,7 @@ const storePresets = [
   { country: "US", label: "United States", currency: "USD" as Currency },
   { country: "GB", label: "United Kingdom", currency: "GBP" as Currency },
   { country: "DE", label: "Germany", currency: "EUR" as Currency },
+  { country: "BR", label: "Brazil", currency: "BRL" as Currency },
 ];
 
 function todayString() {
