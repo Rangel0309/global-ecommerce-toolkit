@@ -6,9 +6,17 @@ import { calculateProfit, scoreProduct } from "@/lib/calculators";
 import { supabase } from "@/lib/supabase/client";
 
 type Currency = "USD" | "EUR" | "GBP";
+type ProductStatus = "idea" | "testing" | "winner" | "paused" | "failed";
+
+type Workspace = {
+  id: string;
+  name: string;
+  base_currency: Currency;
+};
 
 type SavedProduct = {
   id: string;
+  workspace_id: string | null;
   name: string;
   market: string | null;
   selling_price: number;
@@ -17,7 +25,20 @@ type SavedProduct = {
   ad_cost: number;
   fees: number;
   taxes: number;
-  status: string;
+  status: ProductStatus;
+  created_at: string;
+};
+
+type SavedScenario = {
+  id: string;
+  product_id: string | null;
+  name: string;
+  selling_price: number;
+  product_cost: number;
+  shipping_cost: number;
+  ad_cost: number;
+  fees: number;
+  taxes: number;
   created_at: string;
 };
 
@@ -47,6 +68,14 @@ const markets = [
     note: "Large EU market with localization, privacy and returns expectations to plan for.",
   },
 ];
+
+const statusLabels: Record<ProductStatus, string> = {
+  idea: "Idea",
+  testing: "Testing",
+  winner: "Winner",
+  paused: "Paused",
+  failed: "Failed",
+};
 
 function NumberInput({
   label,
@@ -114,11 +143,19 @@ export default function Home() {
   const [authMessage, setAuthMessage] = useState("");
   const [authBusy, setAuthBusy] = useState(false);
 
+  const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [productName, setProductName] = useState("New product");
   const [market, setMarket] = useState("United States");
+  const [status, setStatus] = useState<ProductStatus>("testing");
   const [savedProducts, setSavedProducts] = useState<SavedProduct[]>([]);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [saveMessage, setSaveMessage] = useState("");
   const [saveBusy, setSaveBusy] = useState(false);
+
+  const [scenarioName, setScenarioName] = useState("Base case");
+  const [scenarios, setScenarios] = useState<SavedScenario[]>([]);
+  const [scenarioMessage, setScenarioMessage] = useState("");
+  const [scenarioBusy, setScenarioBusy] = useState(false);
 
   const result = useMemo(
     () =>
@@ -144,8 +181,41 @@ export default function Home() {
     [result.margin, result.breakEvenRoas, targetRoas, demand, competition]
   );
 
+  const portfolio = useMemo(() => {
+    if (savedProducts.length === 0) {
+      return {
+        averageMargin: 0,
+        averageBreakEvenRoas: 0,
+        winners: 0,
+        testing: 0,
+      };
+    }
+
+    const economics = savedProducts.map((item) =>
+      calculateProfit({
+        sellingPrice: Number(item.selling_price),
+        productCost: Number(item.product_cost),
+        shipping: Number(item.shipping_cost),
+        adCost: Number(item.ad_cost),
+        fees: Number(item.fees),
+        taxes: Number(item.taxes),
+      })
+    );
+
+    return {
+      averageMargin:
+        economics.reduce((total, item) => total + item.margin, 0) /
+        economics.length,
+      averageBreakEvenRoas:
+        economics.reduce((total, item) => total + item.breakEvenRoas, 0) /
+        economics.length,
+      winners: savedProducts.filter((item) => item.status === "winner").length,
+      testing: savedProducts.filter((item) => item.status === "testing").length,
+    };
+  }, [savedProducts]);
+
   const money = (value: number) =>
-    `${symbols[currency]}${value.toFixed(2)}`;
+    `${symbols[currency]}${Number(value).toFixed(2)}`;
 
   useEffect(() => {
     if (!supabase) return;
@@ -165,23 +235,81 @@ export default function Home() {
 
   useEffect(() => {
     if (!session || !supabase) {
+      setWorkspace(null);
       setSavedProducts([]);
+      setScenarios([]);
       return;
     }
 
-    void loadProducts();
+    void bootstrapWorkspace();
   }, [session]);
 
-  async function loadProducts() {
+  useEffect(() => {
+    if (!selectedProductId || !session || !supabase) {
+      setScenarios([]);
+      return;
+    }
+
+    void loadScenarios(selectedProductId);
+  }, [selectedProductId, session]);
+
+  async function bootstrapWorkspace() {
     if (!supabase || !session) return;
+
+    let { data: existing, error } = await supabase
+      .from("workspaces")
+      .select("id,name,base_currency")
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      setSaveMessage(error.message);
+      return;
+    }
+
+    if (!existing) {
+      const created = await supabase
+        .from("workspaces")
+        .insert({
+          user_id: session.user.id,
+          name: "My Ecommerce Workspace",
+          base_currency: currency,
+        })
+        .select("id,name,base_currency")
+        .single();
+
+      if (created.error) {
+        setSaveMessage(created.error.message);
+        return;
+      }
+
+      existing = created.data;
+    }
+
+    const nextWorkspace = existing as Workspace;
+    setWorkspace(nextWorkspace);
+    setCurrency(nextWorkspace.base_currency);
+
+    await supabase
+      .from("products")
+      .update({ workspace_id: nextWorkspace.id })
+      .eq("user_id", session.user.id)
+      .is("workspace_id", null);
+
+    await loadProducts(nextWorkspace.id);
+  }
+
+  async function loadProducts(workspaceId = workspace?.id) {
+    if (!supabase || !session || !workspaceId) return;
 
     const { data, error } = await supabase
       .from("products")
       .select(
-        "id,name,market,selling_price,product_cost,shipping_cost,ad_cost,fees,taxes,status,created_at"
+        "id,workspace_id,name,market,selling_price,product_cost,shipping_cost,ad_cost,fees,taxes,status,created_at"
       )
-      .order("created_at", { ascending: false })
-      .limit(8);
+      .eq("workspace_id", workspaceId)
+      .order("created_at", { ascending: false });
 
     if (error) {
       setSaveMessage(error.message);
@@ -189,6 +317,26 @@ export default function Home() {
     }
 
     setSavedProducts((data ?? []) as SavedProduct[]);
+  }
+
+  async function loadScenarios(productId: string) {
+    if (!supabase || !session) return;
+
+    const { data, error } = await supabase
+      .from("scenarios")
+      .select(
+        "id,product_id,name,selling_price,product_cost,shipping_cost,ad_cost,fees,taxes,created_at"
+      )
+      .eq("product_id", productId)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (error) {
+      setScenarioMessage(error.message);
+      return;
+    }
+
+    setScenarios((data ?? []) as SavedScenario[]);
   }
 
   async function signUp() {
@@ -212,11 +360,11 @@ export default function Home() {
       return;
     }
 
-    if (data.session) {
-      setAuthMessage("Account created. You are signed in.");
-    } else {
-      setAuthMessage("Account created. Check your email if confirmation is required.");
-    }
+    setAuthMessage(
+      data.session
+        ? "Account created. You are signed in."
+        : "Account created. Check your email if confirmation is required."
+    );
   }
 
   async function signIn() {
@@ -243,8 +391,39 @@ export default function Home() {
     setAuthMessage("Signed out.");
   }
 
+  function resetProductForm() {
+    setSelectedProductId(null);
+    setProductName("New product");
+    setMarket("United States");
+    setStatus("testing");
+    setSellingPrice(59.99);
+    setProductCost(14);
+    setShipping(5);
+    setAdCost(18);
+    setFees(3);
+    setTaxes(0);
+    setScenarios([]);
+    setSaveMessage("");
+    setScenarioMessage("");
+  }
+
+  function loadProductIntoForm(item: SavedProduct) {
+    setSelectedProductId(item.id);
+    setProductName(item.name);
+    setMarket(item.market ?? "United States");
+    setStatus(item.status);
+    setSellingPrice(Number(item.selling_price));
+    setProductCost(Number(item.product_cost));
+    setShipping(Number(item.shipping_cost));
+    setAdCost(Number(item.ad_cost));
+    setFees(Number(item.fees));
+    setTaxes(Number(item.taxes));
+    setSaveMessage("Product loaded for editing.");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   async function saveProduct() {
-    if (!supabase || !session) {
+    if (!supabase || !session || !workspace) {
       setSaveMessage("Sign in to save this product.");
       return;
     }
@@ -252,8 +431,9 @@ export default function Home() {
     setSaveBusy(true);
     setSaveMessage("");
 
-    const { error } = await supabase.from("products").insert({
+    const payload = {
       user_id: session.user.id,
+      workspace_id: workspace.id,
       name: productName.trim() || "Untitled product",
       market,
       selling_price: sellingPrice,
@@ -262,9 +442,14 @@ export default function Home() {
       ad_cost: adCost,
       fees,
       taxes,
-      status: "testing",
-    });
+      status,
+    };
 
+    const query = selectedProductId
+      ? supabase.from("products").update(payload).eq("id", selectedProductId)
+      : supabase.from("products").insert(payload).select("id").single();
+
+    const { data, error } = await query;
     setSaveBusy(false);
 
     if (error) {
@@ -272,8 +457,102 @@ export default function Home() {
       return;
     }
 
-    setSaveMessage("Product saved.");
-    await loadProducts();
+    if (!selectedProductId && data && "id" in data) {
+      setSelectedProductId(String(data.id));
+    }
+
+    setSaveMessage(selectedProductId ? "Product updated." : "Product saved.");
+    await loadProducts(workspace.id);
+  }
+
+  async function updateStatus(item: SavedProduct, nextStatus: ProductStatus) {
+    if (!supabase || !workspace) return;
+
+    const { error } = await supabase
+      .from("products")
+      .update({ status: nextStatus })
+      .eq("id", item.id);
+
+    if (error) {
+      setSaveMessage(error.message);
+      return;
+    }
+
+    await loadProducts(workspace.id);
+
+    if (selectedProductId === item.id) {
+      setStatus(nextStatus);
+    }
+  }
+
+  async function deleteProduct(item: SavedProduct) {
+    if (!supabase || !workspace) return;
+
+    const confirmed = window.confirm(
+      `Delete "${item.name}" and its saved scenarios?`
+    );
+
+    if (!confirmed) return;
+
+    const { error } = await supabase.from("products").delete().eq("id", item.id);
+
+    if (error) {
+      setSaveMessage(error.message);
+      return;
+    }
+
+    if (selectedProductId === item.id) {
+      resetProductForm();
+    }
+
+    await loadProducts(workspace.id);
+  }
+
+  async function saveScenario() {
+    if (!supabase || !session) {
+      setScenarioMessage("Sign in first.");
+      return;
+    }
+
+    if (!selectedProductId) {
+      setScenarioMessage("Save or load a product before saving a scenario.");
+      return;
+    }
+
+    setScenarioBusy(true);
+    setScenarioMessage("");
+
+    const { error } = await supabase.from("scenarios").insert({
+      user_id: session.user.id,
+      product_id: selectedProductId,
+      name: scenarioName.trim() || "Scenario",
+      selling_price: sellingPrice,
+      product_cost: productCost,
+      shipping_cost: shipping,
+      ad_cost: adCost,
+      fees,
+      taxes,
+    });
+
+    setScenarioBusy(false);
+
+    if (error) {
+      setScenarioMessage(error.message);
+      return;
+    }
+
+    setScenarioMessage("Scenario saved.");
+    await loadScenarios(selectedProductId);
+  }
+
+  function applyScenario(item: SavedScenario) {
+    setSellingPrice(Number(item.selling_price));
+    setProductCost(Number(item.product_cost));
+    setShipping(Number(item.shipping_cost));
+    setAdCost(Number(item.ad_cost));
+    setFees(Number(item.fees));
+    setTaxes(Number(item.taxes));
+    setScenarioMessage(`Scenario "${item.name}" loaded.`);
   }
 
   return (
@@ -369,22 +648,61 @@ export default function Home() {
           <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.06] p-5">
             <p className="text-sm font-medium text-emerald-300">Connected to Supabase</p>
             <p className="mt-2 text-sm text-slate-400">
-              Saved products are private to your account through Row Level Security.
+              {workspace
+                ? `${workspace.name} is ready. Saved products are private to your account.`
+                : "Preparing your workspace..."}
             </p>
           </div>
         )}
       </section>
 
+      {session && (
+        <section className="border-b border-white/10 py-10">
+          <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-sm font-medium text-indigo-300">Portfolio dashboard</p>
+              <h2 className="mt-2 text-2xl font-semibold">Your ecommerce workspace</h2>
+              <p className="mt-2 text-sm text-slate-500">
+                A quick view of the products currently stored in your workspace.
+              </p>
+            </div>
+            <button
+              onClick={resetProductForm}
+              className="rounded-xl border border-white/10 px-4 py-2 text-sm hover:bg-white/[0.05]"
+            >
+              + New product
+            </button>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Metric label="Products" value={String(savedProducts.length)} />
+            <Metric label="Testing" value={String(portfolio.testing)} />
+            <Metric label="Winners" value={String(portfolio.winners)} />
+            <Metric
+              label="Avg. margin"
+              value={`${portfolio.averageMargin.toFixed(1)}%`}
+              helper={
+                savedProducts.length
+                  ? `Avg. break-even ROAS: ${portfolio.averageBreakEvenRoas.toFixed(2)}`
+                  : "Save products to populate the dashboard."
+              }
+            />
+          </div>
+        </section>
+      )}
+
       <section className="py-10">
         <div className="mb-6">
           <p className="text-sm font-medium text-blue-300">Unit economics</p>
-          <h2 className="mt-2 text-2xl font-semibold">Profitability calculator</h2>
+          <h2 className="mt-2 text-2xl font-semibold">
+            {selectedProductId ? "Edit product economics" : "Profitability calculator"}
+          </h2>
           <p className="mt-2 text-sm text-slate-500">
             Estimate contribution profit, break-even CPA and break-even ROAS for one order.
           </p>
         </div>
 
-        <div className="mb-6 grid gap-4 rounded-2xl border border-white/10 bg-white/[0.025] p-5 md:grid-cols-2">
+        <div className="mb-6 grid gap-4 rounded-2xl border border-white/10 bg-white/[0.025] p-5 md:grid-cols-3">
           <label className="grid gap-2 text-sm text-slate-300">
             Product name
             <input
@@ -403,6 +721,21 @@ export default function Home() {
             >
               {markets.map((item) => (
                 <option key={item.code}>{item.name}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="grid gap-2 text-sm text-slate-300">
+            Status
+            <select
+              className="rounded-xl border border-white/10 bg-slate-950 px-3 py-3 outline-none"
+              value={status}
+              onChange={(event) => setStatus(event.target.value as ProductStatus)}
+            >
+              {Object.entries(statusLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
           </label>
@@ -434,17 +767,83 @@ export default function Home() {
             disabled={saveBusy}
             className="rounded-xl bg-blue-500 px-5 py-3 text-sm font-medium text-white hover:bg-blue-400 disabled:opacity-50"
           >
-            {saveBusy ? "Saving..." : "Save product"}
+            {saveBusy
+              ? "Saving..."
+              : selectedProductId
+              ? "Update product"
+              : "Save product"}
           </button>
+          {selectedProductId && (
+            <button
+              onClick={resetProductForm}
+              className="rounded-xl border border-white/10 px-5 py-3 text-sm hover:bg-white/[0.05]"
+            >
+              Cancel edit
+            </button>
+          )}
           {saveMessage && <p className="text-sm text-slate-400">{saveMessage}</p>}
         </div>
+
+        {session && selectedProductId && (
+          <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.025] p-5">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-sm font-medium text-fuchsia-300">Scenario lab</p>
+                <h3 className="mt-1 text-lg font-semibold">Save pricing and CPA scenarios</h3>
+                <p className="mt-2 text-sm text-slate-500">
+                  Test alternative prices, costs or acquisition targets without losing the product baseline.
+                </p>
+              </div>
+              <div className="flex w-full gap-3 lg:w-auto">
+                <input
+                  className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm outline-none lg:w-52"
+                  value={scenarioName}
+                  onChange={(event) => setScenarioName(event.target.value)}
+                  placeholder="Scenario name"
+                />
+                <button
+                  onClick={saveScenario}
+                  disabled={scenarioBusy}
+                  className="rounded-xl border border-fuchsia-400/30 bg-fuchsia-400/10 px-4 py-3 text-sm text-fuchsia-200 disabled:opacity-50"
+                >
+                  {scenarioBusy ? "Saving..." : "Save scenario"}
+                </button>
+              </div>
+            </div>
+
+            {scenarioMessage && (
+              <p className="mt-3 text-sm text-slate-400">{scenarioMessage}</p>
+            )}
+
+            {scenarios.length > 0 && (
+              <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                {scenarios.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => applyScenario(item)}
+                    className="rounded-xl border border-white/10 p-4 text-left hover:bg-white/[0.04]"
+                  >
+                    <p className="font-medium">{item.name}</p>
+                    <p className="mt-2 text-xs text-slate-500">
+                      Price {money(Number(item.selling_price))} · CPA {money(Number(item.ad_cost))}
+                    </p>
+                    <p className="mt-2 text-xs text-blue-300">Load scenario</p>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </section>
 
       {session && (
         <section className="border-t border-white/10 py-10">
           <div className="mb-6">
             <p className="text-sm font-medium text-amber-300">Saved workspace</p>
-            <h2 className="mt-2 text-2xl font-semibold">Recent products</h2>
+            <h2 className="mt-2 text-2xl font-semibold">Products</h2>
+            <p className="mt-2 text-sm text-slate-500">
+              Load a product to edit its economics or change its operating status directly here.
+            </p>
           </div>
 
           {savedProducts.length === 0 ? (
@@ -453,27 +852,87 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {savedProducts.map((item) => (
-                <article key={item.id} className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <h3 className="font-medium">{item.name}</h3>
-                    <span className="rounded-full bg-white/[0.06] px-2 py-1 text-[11px] text-slate-400">
-                      {item.status}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-xs text-slate-500">{item.market ?? "No market"}</p>
-                  <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <p className="text-xs text-slate-500">Selling price</p>
-                      <p className="mt-1">{item.selling_price}</p>
+              {savedProducts.map((item) => {
+                const economics = calculateProfit({
+                  sellingPrice: Number(item.selling_price),
+                  productCost: Number(item.product_cost),
+                  shipping: Number(item.shipping_cost),
+                  adCost: Number(item.ad_cost),
+                  fees: Number(item.fees),
+                  taxes: Number(item.taxes),
+                });
+
+                return (
+                  <article
+                    key={item.id}
+                    className={
+                      "rounded-2xl border p-5 " +
+                      (selectedProductId === item.id
+                        ? "border-blue-400/40 bg-blue-400/[0.06]"
+                        : "border-white/10 bg-white/[0.035]")
+                    }
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="font-medium">{item.name}</h3>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {item.market ?? "No market"}
+                        </p>
+                      </div>
+                      <select
+                        className="rounded-lg border border-white/10 bg-slate-950 px-2 py-1 text-xs outline-none"
+                        value={item.status}
+                        onChange={(event) =>
+                          void updateStatus(
+                            item,
+                            event.target.value as ProductStatus
+                          )
+                        }
+                      >
+                        {Object.entries(statusLabels).map(([value, label]) => (
+                          <option key={value} value={value}>
+                            {label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                    <div>
-                      <p className="text-xs text-slate-500">CPA</p>
-                      <p className="mt-1">{item.ad_cost}</p>
+
+                    <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <p className="text-xs text-slate-500">Selling price</p>
+                        <p className="mt-1">{money(Number(item.selling_price))}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500">CPA</p>
+                        <p className="mt-1">{money(Number(item.ad_cost))}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500">Margin</p>
+                        <p className="mt-1">{economics.margin.toFixed(1)}%</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500">Break-even ROAS</p>
+                        <p className="mt-1">{economics.breakEvenRoas.toFixed(2)}</p>
+                      </div>
                     </div>
-                  </div>
-                </article>
-              ))}
+
+                    <div className="mt-5 flex gap-2">
+                      <button
+                        onClick={() => loadProductIntoForm(item)}
+                        className="flex-1 rounded-lg border border-white/10 px-3 py-2 text-xs hover:bg-white/[0.05]"
+                      >
+                        Load / edit
+                      </button>
+                      <button
+                        onClick={() => void deleteProduct(item)}
+                        className="rounded-lg border border-red-400/20 px-3 py-2 text-xs text-red-300 hover:bg-red-400/10"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           )}
         </section>
@@ -542,15 +1001,6 @@ export default function Home() {
               <p className="mt-3 text-sm leading-6 text-slate-500">{item.note}</p>
             </article>
           ))}
-        </div>
-      </section>
-
-      <section className="border-t border-white/10 py-10">
-        <div className="grid gap-4 md:grid-cols-4">
-          <Metric label="Example AOV" value={money(sellingPrice)} />
-          <Metric label="Example CPA" value={money(adCost)} />
-          <Metric label="Contribution margin" value={`${result.margin.toFixed(1)}%`} />
-          <Metric label="ROAS safety buffer" value={Math.max(targetRoas - result.breakEvenRoas, 0).toFixed(2)} />
         </div>
       </section>
 
