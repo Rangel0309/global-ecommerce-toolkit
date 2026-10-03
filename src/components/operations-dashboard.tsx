@@ -389,6 +389,79 @@ export default function OperationsDashboard({ userId, workspaceId }: Props) {
     ])
   );
 
+  function exportOperationsCsv() {
+    if (!selectedStore || visibleMetrics.length === 0) {
+      setEntryMessage("Add daily metrics before exporting.");
+      return;
+    }
+
+    const headers = [
+      "date",
+      "revenue",
+      "orders",
+      "ad_spend",
+      "cogs",
+      "fees",
+      "refunds",
+      "other_costs",
+      "profit",
+      "roas",
+      "notes",
+    ];
+
+    const rows = visibleMetrics
+      .slice()
+      .sort((a, b) => a.metric_date.localeCompare(b.metric_date))
+      .map((item) => {
+        const profit =
+          Number(item.revenue) -
+          Number(item.ad_spend) -
+          Number(item.cogs) -
+          Number(item.fees) -
+          Number(item.refunds) -
+          Number(item.other_costs);
+        const roas =
+          Number(item.ad_spend) > 0
+            ? Number(item.revenue) / Number(item.ad_spend)
+            : 0;
+
+        return [
+          item.metric_date,
+          item.revenue,
+          item.orders,
+          item.ad_spend,
+          item.cogs,
+          item.fees,
+          item.refunds,
+          item.other_costs,
+          profit,
+          roas,
+          item.notes ?? "",
+        ];
+      });
+
+    const escapeCell = (value: string | number) => {
+      const text = String(value);
+      return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    };
+
+    const csv = [headers, ...rows]
+      .map((row) => row.map((value) => escapeCell(value)).join(","))
+      .join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const safeStore =
+      selectedStore.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "store";
+    link.href = url;
+    link.download = `${safeStore}-operations-${range}d.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <section className="border-b border-white/10 py-10">
       <div className="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -429,6 +502,13 @@ export default function OperationsDashboard({ userId, workspaceId }: Props) {
               <option value={14}>Last 14 days</option>
               <option value={30}>Last 30 days</option>
             </select>
+
+            <button
+              onClick={exportOperationsCsv}
+              className="rounded-xl border border-white/10 px-3 py-3 text-sm hover:bg-white/[0.05]"
+            >
+              Export CSV
+            </button>
           </div>
         )}
       </div>
