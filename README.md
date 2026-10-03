@@ -24,6 +24,7 @@ Global ecommerce decisions often live across spreadsheets, ad platforms, currenc
 - Scenario comparison
 - Product comparison
 - Store-level daily operating dashboard
+- Shopify order/revenue/refund sync with daily background refresh
 - Revenue, profit, margin, ROAS, CPA and AOV reporting
 - Daily operating history
 - Store-operations CSV export
@@ -82,7 +83,7 @@ Store financial reporting remains separated by original store currency. The FX t
 
 User-owned tables use Supabase Row Level Security. Products, workspaces, stores, scenarios and daily metrics are scoped to the authenticated user. Do not expose service-role keys or third-party OAuth secrets in client-side environments.
 
-See [SECURITY.md](./SECURITY.md) for the security policy and [docs/INTEGRATIONS.md](./docs/INTEGRATIONS.md) for the planned Shopify, Google Ads and Meta Ads integration architecture.
+See [SECURITY.md](./SECURITY.md) for the security policy, [docs/SHOPIFY.md](./docs/SHOPIFY.md) for Shopify setup, and [docs/INTEGRATIONS.md](./docs/INTEGRATIONS.md) for the broader integration architecture.
 
 ## Project principles
 
