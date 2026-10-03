@@ -36,10 +36,10 @@
 
 ## v0.4 — Integrations
 
+- [x] Exchange-rate provider for USD, EUR and GBP
 - [ ] Shopify data import
 - [ ] Google Ads import
 - [ ] Meta Ads import
-- [ ] Exchange-rate provider
 
 ## Community
 
