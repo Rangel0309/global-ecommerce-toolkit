@@ -1,6 +1,6 @@
 # Global Ecommerce Toolkit
 
-Open-source tools for global ecommerce operators: profitability, ROAS, product validation, paid traffic, store operations, market research and international expansion.
+Open-source tools for global ecommerce operators: profitability, ROAS, product validation, paid traffic, store operations, currencies, market research and international expansion.
 
 ## Live app
 
@@ -29,6 +29,7 @@ Global ecommerce decisions often live across spreadsheets, ad platforms, currenc
 - Store-operations CSV export
 - Paid traffic calculator for CTR, CPC, CPM, CVR, CPA and ROAS
 - UTM builder
+- USD/EUR/GBP FX reference converter with manual override
 - Calculator CSV export
 - Public profitability API
 - Market comparison for the United States, United Kingdom and Germany
@@ -41,6 +42,8 @@ The calculation engine is available at:
 `/api/calculate`
 
 See [docs/API.md](./docs/API.md) for GET and POST examples.
+
+The app also exposes a lightweight FX proxy at `/api/fx` for USD, EUR and GBP reference rates.
 
 ## Tech stack
 
@@ -73,7 +76,7 @@ The current persistence layer includes:
 - product scenarios
 - daily store metrics
 
-Financial reporting remains separated by store currency. USD, EUR and GBP are not added together until an exchange-rate provider is implemented.
+Store financial reporting remains separated by original store currency. The FX tool provides reference conversion for analysis, while accounting-grade cross-currency rollups should preserve the specific rate and date used.
 
 ## Security model
 
