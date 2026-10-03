@@ -5,6 +5,10 @@ All notable changes to this project will be documented here.
 ## 0.3.0 - Store operations
 
 ### Added
+- Shopify OAuth connection flow with encrypted token storage
+- Manual and daily scheduled Shopify sync
+- Import of recent orders, revenue and refunds while preserving manual ad/COGS inputs
+- BRL support across store operations and FX tools
 - Store-level operating dashboard
 - Daily revenue, order, ad spend, COGS, fee, refund and other-cost entries
 - Revenue, profit, margin, ROAS, CPA and AOV reporting
