@@ -15,11 +15,13 @@
 - [x] Product status workflow
 - [x] Scenario saving and loading
 - [x] Scenario comparison table
+- [x] Product comparison table
 - [x] UTM builder
+- [x] Paid traffic metric calculator
 - [x] CSV export for calculator results
+- [x] CSV export for store operations
 - [x] Store-level daily operating dashboard
 - [x] Revenue, profit, ROAS, CPA and AOV KPIs
-- [ ] Ad metric calculator
 
 ## v0.3 — Data layer
 
@@ -29,6 +31,7 @@
 - [x] Workspace KPI dashboard
 - [x] Store model and daily operating metrics
 - [x] Row Level Security for user-owned operating data
+- [x] Public profitability API
 - [ ] Team collaboration
 
 ## v0.4 — Integrations
@@ -37,7 +40,6 @@
 - [ ] Google Ads import
 - [ ] Meta Ads import
 - [ ] Exchange-rate provider
-- [ ] Public API for calculators
 
 ## Community
 
