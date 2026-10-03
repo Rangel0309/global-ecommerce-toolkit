@@ -12,10 +12,15 @@ All notable changes to this project will be documented here.
 - Daily performance trend visualization
 - Editable operating-day history
 - Multi-store support with separate store currencies
+- Store-operations CSV export
+- Product comparison table
 - Scenario comparison table
+- Paid traffic metrics calculator for CTR, CPC, CPM, CVR, CPA and ROAS
 - Calculator CSV export
 - UTM builder
+- Public profitability API at /api/calculate
 - GitHub Actions build validation
+- Security policy
 - Integration architecture documentation for Shopify, Google Ads and Meta Ads
 
 ### Security
