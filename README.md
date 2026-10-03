@@ -4,24 +4,33 @@ Open-source tools for global ecommerce operators: profitability, ROAS, product v
 
 ## Why this project exists
 
-Global ecommerce decisions often live across spreadsheets, ad platforms, currency converters and disconnected dashboards. This project brings the most common operating calculations into one free, transparent toolkit.
+Global ecommerce decisions often live across spreadsheets, ad platforms, currency converters and disconnected dashboards. This project brings common operating calculations and workflows into one free, transparent toolkit.
 
 ## Current tools
 
 - Profitability calculator
-- Break-even ROAS
-- Break-even CPA
+- Break-even ROAS and CPA
 - Contribution margin
 - Product validation workspace
+- Private operator accounts
+- Persistent ecommerce workspaces
+- Product status tracking
+- Portfolio KPI dashboard
+- Saved pricing and CPA scenarios
 - Market comparison for the United States, United Kingdom and Germany
 - Multi-currency display for USD, EUR and GBP
-- Ecommerce KPI dashboard
+
+## Live app
+
+The current production build is deployed on Vercel.
 
 ## Tech stack
 
 - Next.js
 - TypeScript
 - Tailwind CSS
+- Supabase Auth + Postgres
+- Vercel
 
 ## Getting started
 
@@ -32,7 +41,11 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Copy `.env.example` to `.env.local` and provide your Supabase project values before using authentication or persistence.
+
+## Security model
+
+User-owned tables use Supabase Row Level Security. Products, workspaces and scenarios are scoped to the authenticated user. Do not expose service-role keys in client-side environments.
 
 ## Project principles
 
