@@ -9,6 +9,7 @@ import ScenarioComparison from "@/components/scenario-comparison";
 import UtmBuilder from "@/components/utm-builder";
 import AdMetricsCalculator from "@/components/ad-metrics-calculator";
 import ProductComparisonTable from "@/components/product-comparison-table";
+import FxConverter from "@/components/fx-converter";
 
 type Currency = "USD" | "EUR" | "GBP";
 type ProductStatus = "idea" | "testing" | "winner" | "paused" | "failed";
@@ -1049,6 +1050,8 @@ export default function Home() {
       <AdMetricsCalculator />
 
       <UtmBuilder />
+
+      <FxConverter />
 
       <section className="border-t border-white/10 py-10">
         <div className="mb-6">
