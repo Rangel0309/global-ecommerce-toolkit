@@ -1,6 +1,6 @@
 # Global Ecommerce Toolkit
 
-Open-source tools for global ecommerce operators: profitability, ROAS, product validation, store operations, market research and international expansion.
+Open-source tools for global ecommerce operators: profitability, ROAS, product validation, paid traffic, store operations, market research and international expansion.
 
 ## Live app
 
@@ -22,13 +22,25 @@ Global ecommerce decisions often live across spreadsheets, ad platforms, currenc
 - Portfolio KPI dashboard
 - Saved pricing and CPA scenarios
 - Scenario comparison
+- Product comparison
 - Store-level daily operating dashboard
 - Revenue, profit, margin, ROAS, CPA and AOV reporting
 - Daily operating history
+- Store-operations CSV export
+- Paid traffic calculator for CTR, CPC, CPM, CVR, CPA and ROAS
 - UTM builder
 - Calculator CSV export
+- Public profitability API
 - Market comparison for the United States, United Kingdom and Germany
 - Multi-currency store support for USD, EUR and GBP
+
+## Public API
+
+The calculation engine is available at:
+
+`/api/calculate`
+
+See [docs/API.md](./docs/API.md) for GET and POST examples.
 
 ## Tech stack
 
@@ -67,7 +79,7 @@ Financial reporting remains separated by store currency. USD, EUR and GBP are no
 
 User-owned tables use Supabase Row Level Security. Products, workspaces, stores, scenarios and daily metrics are scoped to the authenticated user. Do not expose service-role keys or third-party OAuth secrets in client-side environments.
 
-See [docs/INTEGRATIONS.md](./docs/INTEGRATIONS.md) for the planned Shopify, Google Ads and Meta Ads integration architecture.
+See [SECURITY.md](./SECURITY.md) for the security policy and [docs/INTEGRATIONS.md](./docs/INTEGRATIONS.md) for the planned Shopify, Google Ads and Meta Ads integration architecture.
 
 ## Project principles
 
