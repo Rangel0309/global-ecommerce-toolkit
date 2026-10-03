@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 
-export const SHOPIFY_API_VERSION = "2026-07";
+export const SHOPIFY_API_VERSION = "2026-10";
 export const SHOPIFY_SCOPES = "read_orders,read_products";
 
 function required(name: string) {
