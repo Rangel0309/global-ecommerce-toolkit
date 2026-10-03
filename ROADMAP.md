@@ -37,7 +37,7 @@
 ## v0.4 — Integrations
 
 - [x] Exchange-rate provider for USD, EUR and GBP
-- [ ] Shopify data import
+- [x] Shopify order/revenue/refund import + daily sync
 - [ ] Google Ads import
 - [ ] Meta Ads import
 
