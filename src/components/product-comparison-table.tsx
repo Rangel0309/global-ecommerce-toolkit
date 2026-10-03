@@ -2,7 +2,7 @@
 
 import { calculateProfit } from "@/lib/calculators";
 
-type Currency = "USD" | "EUR" | "GBP";
+type Currency = "USD" | "EUR" | "GBP" | "BRL";
 
 type Product = {
   id: string;
