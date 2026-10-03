@@ -47,7 +47,7 @@ export default function UtmBuilder() {
     "rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm outline-none focus:border-blue-400/50";
 
   return (
-    <section className="border-t border-white/10 py-10">
+    <section id="utm" className="scroll-mt-20 border-t border-white/10 py-10">
       <div className="mb-6">
         <p className="text-sm font-medium text-cyan-300">Acquisition utility</p>
         <h2 className="mt-2 text-2xl font-semibold">UTM builder</h2>
