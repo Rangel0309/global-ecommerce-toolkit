@@ -5,6 +5,8 @@ import type { Session } from "@supabase/supabase-js";
 import { calculateProfit, scoreProduct } from "@/lib/calculators";
 import { supabase } from "@/lib/supabase/client";
 import OperationsDashboard from "@/components/operations-dashboard";
+import ScenarioComparison from "@/components/scenario-comparison";
+import UtmBuilder from "@/components/utm-builder";
 
 type Currency = "USD" | "EUR" | "GBP";
 type ProductStatus = "idea" | "testing" | "winner" | "paused" | "failed";
@@ -556,6 +558,49 @@ export default function Home() {
     setScenarioMessage(`Scenario "${item.name}" loaded.`);
   }
 
+  function exportCalculatorCsv() {
+    const rows = [
+      ["field", "value"],
+      ["product_name", productName],
+      ["market", market],
+      ["currency", currency],
+      ["selling_price", sellingPrice],
+      ["product_cost", productCost],
+      ["shipping", shipping],
+      ["ad_cost_cpa", adCost],
+      ["fees", fees],
+      ["taxes", taxes],
+      ["profit_per_order", result.profit],
+      ["net_margin_percent", result.margin],
+      ["break_even_cpa", result.breakEvenCpa],
+      ["break_even_roas", result.breakEvenRoas],
+      ["current_roas", result.currentRoas],
+      ["product_signal_score", productScore],
+    ];
+
+    const escapeCell = (value: string | number) => {
+      const text = String(value);
+      return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    };
+
+    const csv = rows
+      .map((row) => row.map((value) => escapeCell(value)).join(","))
+      .join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const safeName =
+      productName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-") ||
+      "product";
+    link.href = url;
+    link.download = `${safeName}-economics.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <main className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-12">
       <header className="flex flex-col gap-6 border-b border-white/10 pb-10 md:flex-row md:items-end md:justify-between">
@@ -789,6 +834,12 @@ export default function Home() {
               Cancel edit
             </button>
           )}
+          <button
+            onClick={exportCalculatorCsv}
+            className="rounded-xl border border-white/10 px-5 py-3 text-sm hover:bg-white/[0.05]"
+          >
+            Export CSV
+          </button>
           {saveMessage && <p className="text-sm text-slate-400">{saveMessage}</p>}
         </div>
 
@@ -840,6 +891,8 @@ export default function Home() {
                 ))}
               </div>
             )}
+
+            <ScenarioComparison scenarios={scenarios} currency={currency} />
           </div>
         )}
       </section>
@@ -988,6 +1041,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <UtmBuilder />
 
       <section className="border-t border-white/10 py-10">
         <div className="mb-6">
