@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-type Currency = "USD" | "EUR" | "GBP";
+type Currency = "USD" | "EUR" | "GBP" | "BRL";
 
 type FxResponse = {
   base: Currency;
@@ -14,7 +14,7 @@ type FxResponse = {
   error?: string;
 };
 
-const currencies: Currency[] = ["USD", "EUR", "GBP"];
+const currencies: Currency[] = ["USD", "EUR", "GBP", "BRL"];
 
 export default function FxConverter() {
   const [amount, setAmount] = useState(100);
@@ -74,7 +74,7 @@ export default function FxConverter() {
         <p className="text-sm font-medium text-teal-300">Currency utility</p>
         <h2 className="mt-2 text-2xl font-semibold">FX reference converter</h2>
         <p className="mt-2 text-sm text-slate-500">
-          Convert USD, EUR and GBP using a daily reference rate, with an optional
+          Convert USD, EUR, GBP and BRL using a daily reference rate, with an optional
           manual override for reconciliation.
         </p>
       </div>
