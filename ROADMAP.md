@@ -11,19 +11,20 @@
 
 ## v0.2 — Operator workflow
 
-- [ ] Save products locally
+- [x] Persistent product saving
+- [x] Product status workflow
+- [x] Scenario saving and loading
 - [ ] Product comparison table
-- [ ] Scenario comparison
 - [ ] UTM builder
 - [ ] Ad metric calculator
 - [ ] CSV export
 
 ## v0.3 — Data layer
 
-- [ ] Optional Supabase persistence
-- [ ] Authentication
-- [ ] Saved workspaces
-- [ ] Store-level dashboards
+- [x] Supabase persistence
+- [x] Email/password authentication
+- [x] Saved workspaces
+- [x] Workspace KPI dashboard
 - [ ] Team collaboration
 
 ## v0.4 — Integrations
