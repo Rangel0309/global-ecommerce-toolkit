@@ -41,12 +41,17 @@ The same pattern should be used for Meta Ads: server-side OAuth, encrypted token
 
 ## Exchange rates
 
-Cross-currency aggregation must not simply add USD, EUR and GBP together. A future exchange-rate provider should:
+Implemented for USD, EUR and GBP through the server-side `/api/fx` route.
 
-- store the rate and timestamp used
-- keep the original store currency
-- support a user-selected reporting currency
-- allow manual overrides for finance reconciliation
+Current behavior:
+
+- retrieves a daily reference rate from Frankfurter
+- exposes the source date to the UI
+- supports a manual override for finance reconciliation
+- keeps original store currencies intact
+- avoids silently combining store totals across currencies
+
+A future accounting-grade workspace rollup should persist the exact conversion rate and reference date used for each converted report.
 
 ## Security rules
 
