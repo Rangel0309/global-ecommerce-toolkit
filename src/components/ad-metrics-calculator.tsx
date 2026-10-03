@@ -42,7 +42,7 @@ export default function AdMetricsCalculator() {
     "rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 outline-none";
 
   return (
-    <section className="border-t border-white/10 py-10">
+    <section id="ads" className="scroll-mt-20 border-t border-white/10 py-10">
       <div className="mb-6">
         <p className="text-sm font-medium text-orange-300">Paid traffic</p>
         <h2 className="mt-2 text-2xl font-semibold">Ad metrics calculator</h2>
