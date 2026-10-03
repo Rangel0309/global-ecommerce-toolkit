@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const supported = new Set(["USD", "EUR", "GBP"]);
+const supported = new Set(["USD", "EUR", "GBP", "BRL"]);
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,OPTIONS",
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
   if (!supported.has(base) || !supported.has(quote)) {
     return NextResponse.json(
-      { error: "Supported currencies are USD, EUR and GBP." },
+      { error: "Supported currencies are USD, EUR, GBP and BRL." },
       { status: 400, headers: corsHeaders }
     );
   }
