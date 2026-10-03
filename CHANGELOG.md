@@ -18,7 +18,10 @@ All notable changes to this project will be documented here.
 - Paid traffic metrics calculator for CTR, CPC, CPM, CVR, CPA and ROAS
 - Calculator CSV export
 - UTM builder
+- USD/EUR/GBP FX reference converter with manual override
+- Keyless server-side FX proxy endpoint
 - Public profitability API at /api/calculate
+- Sticky quick navigation for the main tools
 - GitHub Actions build validation
 - Security policy
 - Integration architecture documentation for Shopify, Google Ads and Meta Ads
@@ -26,7 +29,7 @@ All notable changes to this project will be documented here.
 ### Security
 - Added relationship-aware Row Level Security for stores and daily metrics
 - Added supporting foreign-key indexes
-- Kept cross-currency store totals separate until an exchange-rate source exists
+- Kept store financial KPIs separated by original currency instead of silently mixing USD, EUR and GBP
 
 ## 0.2.0 - Operator workspace
 
