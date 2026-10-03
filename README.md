@@ -34,7 +34,7 @@ Global ecommerce decisions often live across spreadsheets, ad platforms, currenc
 - Calculator CSV export
 - Public profitability API
 - Market comparison for the United States, United Kingdom and Germany
-- Multi-currency store support for USD, EUR and GBP
+- Multi-currency store support for USD, EUR, GBP and BRL
 
 ## Public API
 
@@ -44,7 +44,7 @@ The calculation engine is available at:
 
 See [docs/API.md](./docs/API.md) for GET and POST examples.
 
-The app also exposes a lightweight FX proxy at `/api/fx` for USD, EUR and GBP reference rates.
+The app also exposes a lightweight FX proxy at `/api/fx` for USD, EUR, GBP and BRL reference rates.
 
 ## Tech stack
 
@@ -77,7 +77,7 @@ The current persistence layer includes:
 - product scenarios
 - daily store metrics
 
-Store financial reporting remains separated by original store currency. The FX tool provides reference conversion for analysis, while accounting-grade cross-currency rollups should preserve the specific rate and date used.
+Store financial reporting remains separated by original store currency, including BRL. The FX tool provides reference conversion for analysis, while accounting-grade cross-currency rollups should preserve the specific rate and date used.
 
 ## Security model
 
