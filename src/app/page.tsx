@@ -648,6 +648,28 @@ export default function Home() {
         </div>
       </header>
 
+      <nav className="sticky top-0 z-20 -mx-5 overflow-x-auto border-b border-white/10 bg-[#070b12]/95 px-5 py-3 backdrop-blur md:-mx-8 md:px-8">
+        <div className="mx-auto flex min-w-max gap-2 text-xs text-slate-400">
+          {[
+            ["#operations", "Operations"],
+            ["#products", "Products"],
+            ["#validation", "Validation"],
+            ["#ads", "Ads"],
+            ["#utm", "UTM"],
+            ["#fx", "FX"],
+            ["#markets", "Markets"],
+          ].map(([href, label]) => (
+            <a
+              key={href}
+              href={href}
+              className="rounded-full border border-white/10 px-3 py-1.5 hover:bg-white/[0.05] hover:text-white"
+            >
+              {label}
+            </a>
+          ))}
+        </div>
+      </nav>
+
       <section className="grid gap-6 border-b border-white/10 py-10 lg:grid-cols-[1fr_.9fr]">
         <div>
           <p className="text-sm font-medium text-cyan-300">Operator account</p>
@@ -747,7 +769,7 @@ export default function Home() {
         />
       )}
 
-      <section className="py-10">
+      <section id="products" className="scroll-mt-20 py-10">
         <div className="mb-6">
           <p className="text-sm font-medium text-blue-300">Unit economics</p>
           <h2 className="mt-2 text-2xl font-semibold">
@@ -1004,7 +1026,7 @@ export default function Home() {
         </section>
       )}
 
-      <section className="border-t border-white/10 py-10">
+      <section id="validation" className="scroll-mt-20 border-t border-white/10 py-10">
         <div className="mb-6">
           <p className="text-sm font-medium text-emerald-300">Validation</p>
           <h2 className="mt-2 text-2xl font-semibold">Product signal score</h2>
@@ -1053,7 +1075,7 @@ export default function Home() {
 
       <FxConverter />
 
-      <section className="border-t border-white/10 py-10">
+      <section id="markets" className="scroll-mt-20 border-t border-white/10 py-10">
         <div className="mb-6">
           <p className="text-sm font-medium text-violet-300">International expansion</p>
           <h2 className="mt-2 text-2xl font-semibold">Market workspace</h2>
