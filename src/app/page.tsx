@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase/client";
 import OperationsDashboard from "@/components/operations-dashboard";
 import ScenarioComparison from "@/components/scenario-comparison";
 import UtmBuilder from "@/components/utm-builder";
+import AdMetricsCalculator from "@/components/ad-metrics-calculator";
 
 type Currency = "USD" | "EUR" | "GBP";
 type ProductStatus = "idea" | "testing" | "winner" | "paused" | "failed";
@@ -1041,6 +1042,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <AdMetricsCalculator />
 
       <UtmBuilder />
 
